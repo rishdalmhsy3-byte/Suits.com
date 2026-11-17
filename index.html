@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الشفافية والمتابعة المالية - الجمعية الخيرية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-emerald-800 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2.5 rounded-xl">
+                    <svg class="w-7 h-7 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold">منصة الشفافية والتبرعات الخيرية</h1>
+                        <span id="connectionStatus" class="text-[10px] bg-amber-500/20 text-amber-200 border border-amber-400/30 px-2 py-0.5 rounded-full">جاري الاتصال...</span>
+                    </div>
+                    <p class="text-xs text-emerald-200">الربط المالي المباشر بين السعودية والسودان - تحديث لحظي</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 no-print">
+                <button onclick="openModal('donateModal')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-bold shadow transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    تسجيل تبرع أو تحويل جديد
+                </button>
+                <button onclick="openModal('adminModal')" class="relative bg-emerald-900 hover:bg-emerald-950 text-emerald-100 border border-emerald-600/50 px-4 py-2 rounded-xl font-medium transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    لوحة المشرف
+                    <span id="headerPendingBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold animate-bounce">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+                <div class="bg-emerald-100 text-emerald-800 p-3.5 rounded-xl font-bold">ر.س</div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">إجمالي التبرعات (السعودية)</p>
+                    <h3 id="totalDonationsSAR" class="text-2xl font-black text-slate-900 mt-1">0 ر.س</h3>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+                <div class="bg-blue-100 text-blue-800 p-3.5 rounded-xl font-bold">تحويل</div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">إجمالي المحول للسودان</p>
+                    <h3 id="totalTransferredSAR" class="text-2xl font-black text-slate-900 mt-1">0 ر.س</h3>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+                <div class="bg-amber-100 text-amber-800 p-3.5 rounded-xl font-bold">متبقي</div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">الرصيد المتبقي (السعودية)</p>
+                    <h3 id="remainingSAR" class="text-2xl font-black text-emerald-700 mt-1">0 ر.س</h3>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+                <div class="bg-purple-100 text-purple-800 p-3.5 rounded-xl font-bold">السودان</div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">صافي صندوق السودان (جنيه)</p>
+                    <h3 id="totalSudanSDG" class="text-2xl font-black text-purple-700 mt-1">0 ج.س</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Public Records Table Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">سجل المصداقية العام والتحويلات المعتمدة</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">يتم تحديث السجل تلقائياً وفورياً عند اعتماد أي عملية</p>
+                </div>
+                <div class="flex items-center gap-3 no-print">
+                    <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-medium transition text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        طباعة السجل أو حفظ PDF
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 text-xs font-bold border-b border-slate-200">
+                            <th class="p-4">التاريخ</th>
+                            <th class="p-4">الاسم / المرجع</th>
+                            <th class="p-4">نوع العملية</th>
+                            <th class="p-4">المبلغ (ريال سعودي)</th>
+                            <th class="p-4">سعر الصرف</th>
+                            <th class="p-4">المقابل (جنيه سوداني)</th>
+                            <th class="p-4">المشروع / التفاصيل</th>
+                            <th class="p-4 text-center">الإيصال</th>
+                        </tr>
+                    </thead>
+                    <tbody id="publicTableBody" class="divide-y divide-slate-100 text-sm">
+                        <tr><td colspan="8" class="text-center py-8 text-slate-400">جاري تحميل البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Donor / Submitter Form -->
+    <div id="donateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden">
+            <div class="bg-emerald-800 text-white p-5 flex justify-between items-center">
+                <h3 class="font-bold text-lg">تسجيل تبرع أو تحويل جديد</h3>
+                <button onclick="closeModal('donateModal')" class="text-emerald-200 hover:text-white font-bold text-xl">&times;</button>
+            </div>
+            <form id="submissionForm" onsubmit="handleSubmission(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المتبرع أو كود المشاركة</label>
+                    <input type="text" id="subName" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm" placeholder="مثال: فاعل خير / أبو محمد">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">نوع العملية</label>
+                        <select id="subType" onchange="toggleExchangeRateField()" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm bg-white">
+                            <option value="تبرع وارد">تبرع وارد (في السعودية)</option>
+                            <option value="تحويل للسودان">تحويل بنكي للسودان</option>
+                            <option value="مصروف ميداني">مصروف ميداني (في السودان)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المبلغ (ريال سعودي)</label>
+                        <input type="number" id="subAmount" step="0.01" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div id="exchangeRateContainer" class="hidden bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 mb-1">سعر الصرف الفعلي (كم يساوي الجنيه مقابل الريال)</label>
+                        <input type="number" id="subExchangeRate" step="0.01" class="w-full px-4 py-2.5 rounded-xl border border-emerald-200 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm" placeholder="مثال: 350">
+                        <p class="text-[11px] text-emerald-700 mt-1">سعر الصرف العام الحالي: <span id="currentRateBadge" class="font-bold">--</span></p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">المشروع / الحملة</label>
+                    <select id="subProject" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm bg-white">
+                        <option value="سلال غذائية">سلال غذائية</option>
+                        <option value="علاج حالات طارئة">علاج حالات طارئة</option>
+                        <option value="سقيا الماء">سقيا الماء</option>
+                        <option value="دعم عام للجمعية">دعم عام للجمعية</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">صورة إيصال التحويل أو الفاتورة</label>
+                    <input type="file" id="subReceipt" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('donateModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-sm font-medium">إلغاء</button>
+                    <button type="submit" id="submitBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow">إرسال للمشرف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Admin Login / Dashboard -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <h3 class="font-bold text-lg">لوحة تحكم المشرف (الاعتماد المباشر)</h3>
+                </div>
+                <button onclick="closeModal('adminModal')" class="text-slate-400 hover:text-white font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- Login View -->
+            <div id="adminLoginView" class="p-8 max-w-md mx-auto w-full my-auto text-center space-y-4">
+                <div class="bg-emerald-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-emerald-700">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                </div>
+                <h4 class="text-lg font-bold text-slate-900">أدخل رمز الدخول السري</h4>
+                <p class="text-xs text-slate-500">الرمز الافتراضي للمشرف هو: <span class="font-bold text-emerald-700">1234</span></p>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+                    <input type="password" id="adminPinInput" required class="w-full text-center tracking-widest text-lg px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="••••">
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-bold text-sm shadow">دخول المشرف</button>
+                </form>
+            </div>
+
+            <!-- Admin Panel View -->
+            <div id="adminDashboardView" class="hidden flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Settings Bar -->
+                <div class="bg-slate-100 p-4 rounded-2xl flex flex-wrap justify-between items-center gap-4">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">سعر الصرف العام (ج.س)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="globalExchangeRate" step="0.01" class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm w-28 bg-white" placeholder="350">
+                                <button onclick="updateGlobalRate()" class="bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-800">حفظ</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">تغيير رمز المشرف (PIN)</label>
+                            <div class="flex gap-2">
+                                <input type="password" id="newAdminPin" placeholder="الرمز الجديد" class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm w-28 bg-white">
+                                <button onclick="changeAdminPin()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-700">تحديث</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="logoutAdmin()" class="text-red-600 hover:bg-red-50 px-3 py-2 rounded-xl text-xs font-bold transition">خروج</button>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div>
+                    <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                        <span>الطلبات المعلقة (تظهر هنا فور إرسالها من أي جهاز)</span>
+                        <span id="pendingCountBadge" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                    </h4>
+                    <div id="pendingListContainer" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Image Preview -->
+    <div id="imageModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="closeModal('imageModal')">
+        <div class="bg-white p-2 rounded-2xl max-w-2xl w-full overflow-hidden relative">
+            <button onclick="closeModal('imageModal')" class="absolute top-4 left-4 bg-slate-900 text-white w-8 h-8 rounded-full font-bold flex items-center justify-center shadow">&times;</button>
+            <img id="previewModalImg" src="" alt="الإيصال" class="w-full max-h-[80vh] object-contain rounded-xl">
+        </div>
+    </div>
+
+    <!-- Firebase SDKs & App Logic -->
+    <script type="module">
+        import { initializeApp } from "
